@@ -48,7 +48,7 @@ const INITIAL_DATA: OpenlyData = {
 };
 
 export const INTEREST_SUGGESTIONS = [
-  'Scat & toilet play',
+  'Personal interest',
   'BDSM & power exchange',
   'Leather',
   'Role play',
@@ -66,6 +66,7 @@ interface AppContextValue {
   loadError: boolean;
   saveError: boolean;
   confirmAdult: () => Promise<boolean>;
+  clearAllData: () => Promise<boolean>;
   toggleSaved: (id: string) => Promise<boolean>;
   addResource: (resource: DirectoryResource) => Promise<boolean>;
   removeResource: (id: string) => Promise<boolean>;
@@ -170,6 +171,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [commit],
   );
 
+  const clearAllData = useCallback(
+    () => commit(() => INITIAL_DATA),
+    [commit],
+  );
+
   const toggleSaved = useCallback(
     (id: string) =>
       commit(current => ({
@@ -254,6 +260,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       loadError,
       saveError,
       confirmAdult,
+      clearAllData,
       toggleSaved,
       addResource,
       removeResource,
@@ -269,6 +276,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       loadError,
       saveError,
       confirmAdult,
+      clearAllData,
       toggleSaved,
       addResource,
       removeResource,

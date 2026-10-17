@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import {
   Alert,
+  Pressable,
   Share,
   StyleSheet,
   Text,
   TextInput,
-  TextStyle,
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,9 +16,10 @@ import { useColors } from '@/hooks/useColors';
 
 export default function SpaceScreen() {
   const colors = useColors();
-  const { data, updateProfile, toggleInterest } = useOpenly();
+  const { data, updateProfile, toggleInterest, clearAllData } = useOpenly();
   const [customInterest, setCustomInterest] = useState('');
   const [shareError, setShareError] = useState('');
+  const [clearError, setClearError] = useState('');
 
   const addInterest = () => {
     const interest = customInterest.trim();
@@ -45,7 +46,7 @@ export default function SpaceScreen() {
 
     Alert.alert(
       'Review before sharing',
-      'This will share the details below through your device’s share menu. Openly will not publish them to a profile or community.',
+      `Only these details will be shared through your device’s share menu:\n\n${details.join('\n')}\n\nOpenly will not publish them to a profile or community.`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -54,6 +55,27 @@ export default function SpaceScreen() {
             void Share.share({ message: `My Openly introduction\n\n${details.join('\n')}` })
               .then(() => setShareError(''))
               .catch(() => setShareError('Your device could not open the share menu.'));
+          },
+        },
+      ],
+    );
+  };
+
+  const confirmClearData = () => {
+    Alert.alert(
+      'Clear all on-device data?',
+      'This permanently removes your profile, interests, saved links, personal links, safety checklist, and age confirmation from this device. It cannot remove anything you have already shared outside Openly.',
+      [
+        { text: 'Keep my data', style: 'cancel' },
+        {
+          text: 'Clear everything',
+          style: 'destructive',
+          onPress: () => {
+            void clearAllData().then(saved => {
+              setClearError(
+                saved ? '' : 'Your data could not be cleared. Please try again.',
+              );
+            });
           },
         },
       ],
@@ -81,7 +103,7 @@ export default function SpaceScreen() {
               Your details stay here
             </Text>
             <Text style={[styles.privacyText, { color: colors.primaryForeground }]}>
-              This profile is stored on your device. It is not a public account.
+              This profile stays on your device and is not a public account. Openly does not encrypt it separately, so use a device lock and avoid shared devices.
             </Text>
           </View>
         </View>
@@ -217,6 +239,49 @@ export default function SpaceScreen() {
             Once you send something outside Openly, it cannot be recalled here.
           </Text>
         </View>
+
+        <View
+          style={[
+            styles.clearCard,
+            { backgroundColor: colors.card, borderColor: colors.border },
+          ]}
+        >
+          <View style={styles.shareHeading}>
+            <View style={[styles.shareIcon, { backgroundColor: colors.muted }]}>
+              <Ionicons name="trash-outline" size={19} color={colors.destructive} />
+            </View>
+            <View style={styles.sectionCopy}>
+              <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
+                Remove your local data
+              </Text>
+              <Text style={[styles.sectionSubtext, { color: colors.mutedForeground }]}>
+                Clear your profile, interests, saved links, and checklist from this device.
+              </Text>
+            </View>
+          </View>
+          {clearError ? (
+            <Text style={[styles.formError, { color: colors.destructive }]}>
+              {clearError}
+            </Text>
+          ) : null}
+          <Pressable
+            onPress={confirmClearData}
+            accessibilityRole="button"
+            accessibilityLabel="Clear all Openly data from this device"
+            style={({ pressed }) => [
+              styles.clearButton,
+              {
+                borderColor: colors.destructive,
+                opacity: pressed ? 0.72 : 1,
+              },
+            ]}
+          >
+            <Ionicons name="trash-outline" size={17} color={colors.destructive} />
+            <Text style={[styles.clearButtonText, { color: colors.destructive }]}>
+              Clear all on-device data
+            </Text>
+          </Pressable>
+        </View>
       </KeyboardAwareScrollViewCompat>
     </GatedScreen>
   );
@@ -304,5 +369,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   formError: { fontSize: 12, lineHeight: 17, fontFamily: 'Inter_500Medium' },
+  clearCard: { borderWidth: 1, borderRadius: 19, padding: 16, gap: 14 },
+  clearButton: {
+    minHeight: 44,
+    borderWidth: 1,
+    borderRadius: 13,
+    paddingHorizontal: 13,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  clearButtonText: { fontSize: 12, fontFamily: 'Inter_700Bold' },
 });
 
