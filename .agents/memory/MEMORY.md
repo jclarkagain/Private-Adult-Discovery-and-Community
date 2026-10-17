@@ -1,0 +1,1 @@
+- [Openly product scope](openly-product-scope.md) — keep adult discovery broad, identity-inclusive, and centered on personal privacy and consent.

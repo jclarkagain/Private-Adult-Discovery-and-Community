@@ -1,0 +1,24 @@
+kind = "mobile"
+previewPath = "/"
+title = "Openly"
+description = "An inclusive, adult-only discovery and community app for finding personals, events, places, shops, and kink-friendly spaces. It centers privacy, consent, identity choice, and clearly dated community-submitted listings."
+version = "1.0.0"
+id = "artifacts/openly"
+router = "expo-domain"
+
+[[services]]
+name = "expo"
+ensurePreviewReachable = "/status"
+paths = [ "/" ]
+localPort = 25898
+
+[services.development]
+run = "pnpm --filter @workspace/openly run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/openly", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/openly", "run", "serve" ]
+
+[services.env]
+PORT = "25898"
+BASE_PATH = "/"
